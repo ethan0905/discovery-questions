@@ -18,7 +18,7 @@ interface ExportPageProps {
 
 export default function RefinedPDFExportPage({
   title = "Discovery Copilot",
-  questions = [],
+  questions: initialQuestions = [],
   notes = [],
 }: ExportPageProps) {
   const router = useRouter()
@@ -28,6 +28,7 @@ export default function RefinedPDFExportPage({
   const [parsedNotes, setParsedNotes] = useState<string[]>([])
   const [currentDate, setCurrentDate] = useState("")
   const [callDuration, setCallDuration] = useState("00:08") // Default value
+  const [questions, setQuestions] = useState<Question[]>(initialQuestions)
 
   // Parse notes from URL if available
   useEffect(() => {
@@ -40,6 +41,20 @@ export default function RefinedPDFExportPage({
         }
       } catch (e) {
         console.error("Error parsing notes:", e)
+      }
+    }
+
+    // Get questions from URL if available
+    const questionsParam = searchParams?.get("questions")
+    if (questionsParam) {
+      try {
+        const decodedQuestions = JSON.parse(decodeURIComponent(questionsParam))
+        if (Array.isArray(decodedQuestions)) {
+          // Update the questions with the ones from the URL
+          setQuestions(decodedQuestions)
+        }
+      } catch (e) {
+        console.error("Error parsing questions:", e)
       }
     }
 
@@ -58,39 +73,66 @@ export default function RefinedPDFExportPage({
   // Use default questions if none provided
   const defaultQuestions: Question[] = [
     {
-      question: "What challenges is your business currently facing?",
-      emoji: "🧊",
-      title: "Brise-glace",
+      question: "Quick one before we dive in – what's been the highlight of your week so far?",
+      emoji: "🧊🔥",
+      title: "Ice‑breaker",
     },
     {
-      question: "What solutions have you tried before and what were the results?",
-      emoji: "🔍",
-      title: "Solutions Précédentes",
+      question: "What ARR are you aiming to hit by Demo Day?",
+      emoji: "🤩🌌",
+      title: "Demo day dream goal",
     },
     {
-      question: "What would success look like for you in the next 6-12 months?",
-      emoji: "🎯",
-      title: "Définition du Succès",
+      question: "How many first‑calls or demos do you (and the team) run per week right now?",
+      emoji: "📸",
+      title: "Pipeline snapshot 1/2",
     },
     {
-      question: "Who else is involved in the decision-making process?",
-      emoji: "👥",
-      title: "Parties Prenantes",
+      question: "What's the average deal size on those calls?",
+      emoji: "📸",
+      title: "Pipeline snapshot 2/2",
     },
     {
-      question: "What's your timeline for implementing a solution?",
-      emoji: "⏱️",
-      title: "Calendrier",
+      question: "Out of those calls, what percentage convert to paying customers?",
+      emoji: "🔄",
+      title: "Current conversion",
     },
     {
-      question: "What's your budget range for this initiative?",
-      emoji: "💰",
-      title: "Budget",
+      question: "In the last 30 days, how many qualified deals slipped through?",
+      emoji: "😈",
+      title: "Revenue leakage 1/2",
     },
     {
-      question: "What would be your next steps after this call?",
-      emoji: "🚀",
-      title: "Prochaines Étapes",
+      question: "Ballpark, what's the monthly revenue you believe is left on the table?",
+      emoji: "😈",
+      title: "Revenue leakage 2/2",
+    },
+    {
+      question:
+        "If you stay at the current close rate, what does that mean for your demo day goal? team morale? future fundraising?",
+      emoji: "❗️",
+      title: "Impact & Urgency",
+    },
+    {
+      question: "What tools or coaching methods are you using today to improve your conversion rates?",
+      emoji: "✅",
+      title: "Existing Solutions? 1/2",
+    },
+    {
+      question: "Where do they fall short?",
+      emoji: "✅",
+      title: "Existing Solutions? 2/2",
+    },
+    {
+      question: "What timeline are you working with to solve this before Demo Day?",
+      emoji: "🕖",
+      title: "Timeline",
+    },
+    {
+      question:
+        "Sounds like closing the extra $XXX K/month is mission‑critical and time‑boxed to Demo Day. Do you want to see how Nomi delivers realtime coaching that moves those numbers?",
+      emoji: "📟",
+      title: "Transition to Demo",
     },
   ]
 

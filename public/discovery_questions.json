@@ -1,0 +1,64 @@
+[
+  {
+    "section": "🧊🔥 Ice‑breaker",
+    "duration_min": 1,
+    "question": "Quick one before we dive in – what's been the highlight of your week so far?",
+    "note": "Sets a friendly tone; lets you gauge energy."
+  },
+  {
+    "section": "🤩🌌 Demo day dream goal",
+    "duration_min": 1,
+    "question": "What ARR are you aiming to hit by Demo Day?"
+  },
+  {
+    "section": "📸 Pipeline snapshot 1/2",
+    "duration_min": 1,
+    "question": "How many first‑calls or demos do you (and the team) run per week right now?"
+  },
+  {
+    "section": "📸 Pipeline snapshot 2/2",
+    "duration_min": 1,
+    "question": "What's the average deal size on those calls?"
+  },
+  {
+    "section": "🔄 Current conversion",
+    "duration_min": 1,
+    "question": "Out of those calls, what percentage convert to paying customers?"
+  },
+  {
+    "section": "😈 Revenue leakage 1/2",
+    "duration_min": 1,
+    "question": "In the last 30 days, how many qualified deals slipped through?"
+  },
+  {
+    "section": "😈 Revenue leakage 2/2",
+    "duration_min": 1,
+    "question": "Ballpark, what's the monthly revenue you believe is left on the table?"
+  },
+  {
+    "section": "❗️Impact & Urgency",
+    "duration_min": 2,
+    "question": "If you stay at the current close rate, what does that mean for your demo day goal? team morale? future fundraising?",
+    "note": "Gets them to say the pain out loud."
+  },
+  {
+    "section": "✅ Existing Solutions? 1/2",
+    "duration_min": 2,
+    "question": "What tools or coaching methods are you using today to improve your conversion rates?"
+  },
+  {
+    "section": "✅ Existing Solutions? 2/2",
+    "duration_min": 2,
+    "question": "Where do they fall short?"
+  },
+  {
+    "section": "🕖 Timeline",
+    "duration_min": 2,
+    "question": "What timeline are you working with to solve this before Demo Day?"
+  },
+  {
+    "section": "📟 Transition to Demo",
+    "duration_min": 0.25,
+    "question": "Sounds like closing the extra $XXX K/month is mission‑critical and time‑boxed to Demo Day. Do you want to see how Nomi delivers realtime coaching that moves those numbers?"
+  }
+]

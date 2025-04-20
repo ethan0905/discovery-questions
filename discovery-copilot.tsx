@@ -6,42 +6,95 @@ import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Clock, CheckCircle, Settings, Save, X, Copy } from "lucide-react"
 
-// Update the default question data with French titles
+// Update the default question data with the new questions from the JSON file
+// Replace the existing defaultQuestionData with this:
+
 const defaultQuestionData = [
   {
-    question: "What challenges is your business currently facing?",
-    emoji: "🧊",
-    title: "Brise-glace",
+    question: "Quick one before we dive in – what's been the highlight of your week so far?",
+    emoji: "🧊🔥",
+    title: "Ice‑breaker",
   },
   {
-    question: "What solutions have you tried before and what were the results?",
-    emoji: "🔍",
-    title: "Solutions Précédentes",
+    question: "What ARR are you aiming to hit by Demo Day?",
+    emoji: "🤩🌌",
+    title: "Demo day dream goal",
   },
   {
-    question: "What would success look like for you in the next 6-12 months?",
-    emoji: "🎯",
-    title: "Définition du Succès",
+    question: "How many first‑calls or demos do you (and the team) run per week right now?",
+    emoji: "📸",
+    title: "Pipeline snapshot 1/2",
   },
   {
-    question: "Who else is involved in the decision-making process?",
-    emoji: "👥",
-    title: "Parties Prenantes",
+    question: "What's the average deal size on those calls?",
+    emoji: "📸",
+    title: "Pipeline snapshot 2/2",
   },
   {
-    question: "What's your timeline for implementing a solution?",
-    emoji: "⏱️",
-    title: "Calendrier",
+    question: "Out of those calls, what percentage convert to paying customers?",
+    emoji: "🔄",
+    title: "Current conversion",
   },
   {
-    question: "What's your budget range for this initiative?",
-    emoji: "💰",
-    title: "Budget",
+    question: "In the last 30 days, how many qualified deals slipped through?",
+    emoji: "😈",
+    title: "Revenue leakage 1/2",
   },
   {
-    question: "What would be your next steps after this call?",
-    emoji: "🚀",
-    title: "Prochaines Étapes",
+    question: "Ballpark, what's the monthly revenue you believe is left on the table?",
+    emoji: "😈",
+    title: "Revenue leakage 2/2",
+  },
+  {
+    question:
+      "If you stay at the current close rate, what does that mean for your demo day goal? team morale? future fundraising?",
+    emoji: "❗️",
+    title: "Impact & Urgency",
+  },
+  {
+    question: "What tools or coaching methods are you using today to improve your conversion rates?",
+    emoji: "✅",
+    title: "Existing Solutions? 1/2",
+  },
+  {
+    question: "Where do they fall short?",
+    emoji: "✅",
+    title: "Existing Solutions? 2/2",
+  },
+  {
+    question: "What timeline are you working with to solve this before Demo Day?",
+    emoji: "🕖",
+    title: "Timeline",
+  },
+  {
+    question:
+      "Sounds like closing the extra $XXX K/month is mission‑critical and time‑boxed to Demo Day. Do you want to see how Nomi delivers realtime coaching that moves those numbers?",
+    emoji: "📟",
+    title: "Transition to Demo",
+  },
+]
+
+// Ice breakers data
+const icebreakers = [
+  {
+    section: "Ice‑breaker",
+    emoji: "🎉",
+    question: "What's one small win you're celebrating this week?",
+  },
+  {
+    section: "Ice‑breaker",
+    emoji: "📚",
+    question: "Read or hear anything recently that totally inspired you?",
+  },
+  {
+    section: "Ice‑breaker",
+    emoji: "🛠️",
+    question: "Tried any new tools this week that you found actually insane?",
+  },
+  {
+    section: "Ice‑breaker",
+    emoji: "🔥",
+    question: "What's the most exciting thing on your roadmap that nobody outside the team knows about yet?",
   },
 ]
 
@@ -80,6 +133,11 @@ export default function DiscoveryCopilot() {
   const [customTitle, setCustomTitle] = useState("New discovery - Edit")
   const [isEditingTitle, setIsEditingTitle] = useState(false)
 
+  // State for ice breaker selection
+  const [currentIceBreakerIndex, setCurrentIceBreakerIndex] = useState<number>(
+    Math.floor(Math.random() * icebreakers.length),
+  )
+
   // Call timer
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null
@@ -109,6 +167,13 @@ export default function DiscoveryCopilot() {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Check if the active element is the textarea
       const isTextareaFocused = document.activeElement === textareaRef.current
+
+      // Tab key: cycle through ice breakers for the first question
+      if (e.key === "Tab" && activeQuestionIndex === 0 && !answeredQuestions.includes(0)) {
+        e.preventDefault()
+        setCurrentIceBreakerIndex((prevIndex) => (prevIndex + 1) % icebreakers.length)
+        return
+      }
 
       // Enter key: mark current question as answered
       if (e.key === "Enter" && activeQuestionIndex < questionData.length) {
@@ -176,7 +241,7 @@ export default function DiscoveryCopilot() {
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [activeQuestionIndex, answeredQuestions, questionData.length])
+  }, [activeQuestionIndex, answeredQuestions, questionData.length, currentIceBreakerIndex])
 
   // Focus the textarea when switching questions in notes mode
   useEffect(() => {
@@ -212,14 +277,21 @@ export default function DiscoveryCopilot() {
     }
   }
 
-  // Get explanation text in French based on question index
+  // Update the getExplanationText function to match the new questions
+  // Replace the existing getExplanationText function with this:
+
+  // Get explanation text based on question index
   const getExplanationText = (index: number) => {
     if (index === 0) {
-      return "Commencez par cette question pour comprendre leurs besoins."
-    } else if (index === questionData.length - 1) {
-      return "Établissez des prochaines étapes claires avant de terminer l'appel."
+      return "Sets a friendly tone; lets you gauge energy."
+    } else if (index === 7) {
+      return "Gets them to say the pain out loud."
+    } else if (index === 11) {
+      return "Transition to showing how your solution addresses their specific needs."
+    } else if (index < 7) {
+      return "Gather quantitative data about their current situation."
     } else {
-      return "Écoutez attentivement et prenez des notes sur leur réponse."
+      return "Understand their current approach and timeline constraints."
     }
   }
 
@@ -326,12 +398,24 @@ export default function DiscoveryCopilot() {
     // Format call time for URL
     const formattedCallTime = formatTime(callTime)
 
+    // Create a copy of the questions with the current ice breaker
+    const currentQuestions = [...questionData]
+    if (currentQuestions.length > 0) {
+      currentQuestions[0] = {
+        ...currentQuestions[0],
+        question: icebreakers[currentIceBreakerIndex].question,
+        emoji: icebreakers[currentIceBreakerIndex].emoji,
+        title: icebreakers[currentIceBreakerIndex].section,
+      }
+    }
+
     // Encode notes as a URL parameter
     const encodedNotes = encodeURIComponent(JSON.stringify(notes))
+    const encodedQuestions = encodeURIComponent(JSON.stringify(currentQuestions))
 
     // Open the PDF export page in a new tab/window with notes data and call duration
     window.open(
-      `/pdf-export?title=${encodeURIComponent(customTitle)}&notes=${encodedNotes}&duration=${formattedCallTime}`,
+      `/pdf-export?title=${encodeURIComponent(customTitle)}&notes=${encodedNotes}&duration=${formattedCallTime}&questions=${encodedQuestions}`,
       "_blank",
     )
   }
@@ -396,7 +480,7 @@ export default function DiscoveryCopilot() {
           {questionData.map((q, i) => (
             <li key={i} className="flex items-start gap-2">
               <span className="font-medium">{i + 1}.</span>
-              <span>{q.question}</span>
+              <span>{i === 0 ? icebreakers[currentIceBreakerIndex].question : q.question}</span>
               {mode === "start-notes" && notes[i] && <span className="ml-2 text-[#6E6E80] italic">— {notes[i]}</span>}
             </li>
           ))}
@@ -632,6 +716,7 @@ export default function DiscoveryCopilot() {
               const isAnswered = answeredQuestions.includes(index)
               const isActive = index === activeQuestionIndex
               const questionNumber = index + 1
+              const isFirstQuestion = index === 0
 
               // Don't render answered questions
               if (isAnswered) return null
@@ -670,13 +755,25 @@ export default function DiscoveryCopilot() {
                   <div className="flex-1">
                     {isActive && (
                       <div
-                        className="text-sm font-medium mb-1"
+                        className="text-sm font-medium mb-1 flex items-center justify-between"
                         style={{
                           color: getQuestionColor(index),
                           fontFamily: "Helvetica, Arial, sans-serif",
                         }}
                       >
-                        {item.emoji} {item.title}
+                        <div>
+                          {isFirstQuestion
+                            ? `${icebreakers[currentIceBreakerIndex].emoji} ${icebreakers[currentIceBreakerIndex].section}`
+                            : `${item.emoji} ${item.title}`}
+                        </div>
+                        {isFirstQuestion && (
+                          <div className="text-xs px-2 py-1 bg-[#F7F7F8] rounded text-[#6E6E80]">
+                            <span>
+                              {currentIceBreakerIndex + 1}/{icebreakers.length}
+                            </span>
+                            <span className="ml-1 text-[#AEAEB2]">Press Tab ↹</span>
+                          </div>
+                        )}
                       </div>
                     )}
                     <div
@@ -688,7 +785,7 @@ export default function DiscoveryCopilot() {
                         color: isActive ? "#000000" : "#8E8EA0",
                       }}
                     >
-                      {questionNumber}. {item.question}
+                      {questionNumber}. {isFirstQuestion ? icebreakers[currentIceBreakerIndex].question : item.question}
                     </div>
                     {isActive && (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
