@@ -74,6 +74,7 @@ export default function DiscoveryCopilot() {
   const [callTime, setCallTime] = useState(0)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [focusTimeoutId, setFocusTimeoutId] = useState<NodeJS.Timeout | null>(null)
 
   // Add a new state variable for the title near the other state variables
   const [customTitle, setCustomTitle] = useState("Discovery Copilot")
@@ -103,6 +104,100 @@ export default function DiscoveryCopilot() {
     }
   }, [isCompleted])
 
+  // Handle keydown events globally for navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if the active element is the textarea
+      const isTextareaFocused = document.activeElement === textareaRef.current
+
+      // Enter key: mark current question as answered
+      if (e.key === "Enter" && activeQuestionIndex < questionData.length) {
+        e.preventDefault()
+
+        // Mark current question as answered if not already
+        if (!answeredQuestions.includes(activeQuestionIndex)) {
+          const newAnsweredQuestions = [...answeredQuestions, activeQuestionIndex]
+          setAnsweredQuestions(newAnsweredQuestions)
+
+          // Calculate progress percentage
+          const newProgressPercentage = (newAnsweredQuestions.length / questionData.length) * 100
+          setProgressPercentage(newProgressPercentage)
+
+          // Check if all questions are answered
+          if (newAnsweredQuestions.length === questionData.length) {
+            setIsCompleted(true)
+          }
+        }
+
+        // Move to next question if not at the end
+        if (activeQuestionIndex < questionData.length - 1) {
+          // Find the next unanswered question
+          let nextIndex = activeQuestionIndex + 1
+          while (nextIndex < questionData.length && answeredQuestions.includes(nextIndex)) {
+            nextIndex++
+          }
+          if (nextIndex < questionData.length) {
+            switchToQuestion(nextIndex)
+          }
+        }
+      }
+
+      // Arrow keys: navigate between questions only if textarea is not focused
+      // For left and right arrows, allow default behavior when textarea is focused
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        // If textarea is focused and it's left/right arrow, allow default behavior (text navigation)
+        if (isTextareaFocused && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+          return // Allow default behavior for left/right arrows in textarea
+        }
+
+        e.preventDefault()
+
+        if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+          // Find the previous unanswered question
+          let prevIndex = activeQuestionIndex - 1
+          while (prevIndex >= 0 && answeredQuestions.includes(prevIndex)) {
+            prevIndex--
+          }
+          if (prevIndex >= 0) {
+            switchToQuestion(prevIndex)
+          }
+        } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+          // Find the next unanswered question
+          let nextIndex = activeQuestionIndex + 1
+          while (nextIndex < questionData.length && answeredQuestions.includes(nextIndex)) {
+            nextIndex++
+          }
+          if (nextIndex < questionData.length) {
+            switchToQuestion(nextIndex)
+          }
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [activeQuestionIndex, answeredQuestions, questionData.length])
+
+  // Focus the textarea when switching questions in notes mode
+  useEffect(() => {
+    // Clear any existing timeout
+    if (focusTimeoutId) {
+      clearTimeout(focusTimeoutId)
+    }
+
+    // Only attempt to focus if we're in notes mode
+    if (mode === "start-notes") {
+      const newFocusTimeoutId = setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus()
+        }
+      }, 100)
+
+      setFocusTimeoutId(newFocusTimeoutId)
+      return () => clearTimeout(newFocusTimeoutId)
+    }
+  }, [activeQuestionIndex, mode])
+
   // Format time as mm:ss
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -116,73 +211,6 @@ export default function DiscoveryCopilot() {
       setActiveQuestionIndex(index)
     }
   }
-
-  // Handle keydown events globally for navigation
-  useEffect(() => {
-    if (mode !== "config") {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        // Enter key: mark current question as answered
-        if (e.key === "Enter" && activeQuestionIndex < questionData.length) {
-          e.preventDefault()
-
-          // Mark current question as answered if not already
-          if (!answeredQuestions.includes(activeQuestionIndex)) {
-            const newAnsweredQuestions = [...answeredQuestions, activeQuestionIndex]
-            setAnsweredQuestions(newAnsweredQuestions)
-
-            // Calculate progress percentage
-            const newProgressPercentage = (newAnsweredQuestions.length / questionData.length) * 100
-            setProgressPercentage(newProgressPercentage)
-
-            // Check if all questions are answered
-            if (newAnsweredQuestions.length === questionData.length) {
-              setIsCompleted(true)
-            }
-          }
-
-          // Move to next question if not at the end
-          if (activeQuestionIndex < questionData.length - 1) {
-            // Find the next unanswered question
-            let nextIndex = activeQuestionIndex + 1
-            while (nextIndex < questionData.length && answeredQuestions.includes(nextIndex)) {
-              nextIndex++
-            }
-            if (nextIndex < questionData.length) {
-              switchToQuestion(nextIndex)
-            }
-          }
-        }
-
-        // Arrow keys: navigate between questions
-        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
-          e.preventDefault()
-
-          if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-            // Find the previous unanswered question
-            let prevIndex = activeQuestionIndex - 1
-            while (prevIndex >= 0 && answeredQuestions.includes(prevIndex)) {
-              prevIndex--
-            }
-            if (prevIndex >= 0) {
-              switchToQuestion(prevIndex)
-            }
-          } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-            // Find the next unanswered question
-            let nextIndex = activeQuestionIndex + 1
-            while (nextIndex < questionData.length && answeredQuestions.includes(nextIndex)) {
-              nextIndex++
-            }
-            if (nextIndex < questionData.length) {
-              switchToQuestion(nextIndex)
-            }
-          }
-        }
-      }
-
-      window.addEventListener("keydown", handleKeyDown)
-      return () => window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [activeQuestionIndex, answeredQuestions, questionData.length, mode])
 
   // Get explanation text in French based on question index
   const getExplanationText = (index: number) => {
@@ -272,6 +300,56 @@ export default function DiscoveryCopilot() {
 
   // Update the generateRecap function to include the custom title
   const generateRecap = () => {
+    const printRecap = () => {
+      const content = document.createElement("div")
+      content.innerHTML = `
+        <html>
+          <head>
+            <title>${customTitle} Summary</title>
+            <style>
+              body { font-family: Helvetica, Arial, sans-serif; padding: 20px; }
+              h1 { color: #10A37F; }
+              ul { padding-left: 20px; }
+              li { margin-bottom: 10px; }
+              .note { color: #6E6E80; font-style: italic; }
+            </style>
+          </head>
+          <body>
+            <h1>${customTitle} Summary</h1>
+            <p>Call duration: ${formatTime(callTime)}</p>
+            <ul>
+              ${questionData
+                .map(
+                  (q, i) => `
+                <li>
+                  <strong>${i + 1}. ${q.question}</strong>
+                  ${notes[i] ? `<div class="note">Notes: ${notes[i]}</div>` : ""}
+                </li>
+              `,
+                )
+                .join("")}
+            </ul>
+          </body>
+        </html>
+      `
+
+      const printWindow = window.open("", "_blank")
+      if (printWindow) {
+        printWindow.document.write(content.innerHTML)
+        printWindow.document.close()
+        printWindow.focus()
+
+        // Add a slight delay to ensure content is loaded
+        setTimeout(() => {
+          printWindow.print()
+          // Some browsers will close the window after printing, some won't
+          // We'll add a message to guide the user
+          printWindow.document.body.innerHTML +=
+            '<p style="text-align: center; margin-top: 20px; color: #6E6E80;">You can close this window after saving or printing.</p>'
+        }, 300)
+      }
+    }
+
     return (
       <div className="mt-4 pt-4 border-t border-[#ECECF1]">
         <h4 className="text-base font-medium mb-2 text-black">{customTitle} Summary:</h4>
@@ -285,38 +363,56 @@ export default function DiscoveryCopilot() {
           ))}
         </ul>
 
-        {/* Screenshot prompt */}
-        <div className="mt-6 pt-4 border-t border-[#ECECF1] flex items-center gap-2 text-[#6E6E80]">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-[#10A37F]"
+        {/* Export button instead of screenshot prompt */}
+        <div className="mt-6 pt-4 border-t border-[#ECECF1] flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[#6E6E80]">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-[#10A37F]"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <p className="text-sm">
+              <span className="font-medium text-[#353740]">Tip:</span> Save your discovery notes for future reference.
+            </p>
+          </div>
+          <button
+            onClick={printRecap}
+            className="flex items-center gap-2 px-3 py-2 text-sm text-white bg-[#10A37F] hover:bg-[#0D8C6D] rounded-md transition-colors"
           >
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-            <polyline points="21 15 16 10 5 21"></polyline>
-          </svg>
-          <p className="text-sm">
-            <span className="font-medium text-[#353740]">Tip:</span> Take a screenshot of this page to save your
-            discovery notes for future reference.
-          </p>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Summary
+          </button>
         </div>
       </div>
     )
   }
 
-  // Update the configuration UI styling
-  // Find the configuration mode render section and update the input styling
-
-  // Replace the configuration mode render section with this updated version:
-  // Render configuration mode
+  // Render UI based on mode
   if (mode === "config") {
     return (
       <div className="w-[60%] mx-auto bg-white rounded-lg shadow-sm border border-[#ECECF1] overflow-hidden">
@@ -392,20 +488,6 @@ export default function DiscoveryCopilot() {
       </div>
     )
   }
-
-  // Focus the textarea when switching questions in notes mode
-  useEffect(() => {
-    if (mode === "start-notes" && !answeredQuestions.includes(activeQuestionIndex)) {
-      // Small delay to ensure the animation has started and the element exists
-      const focusTimeout = setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.focus()
-        }
-      }, 100)
-
-      return () => clearTimeout(focusTimeout)
-    }
-  }, [activeQuestionIndex, mode, answeredQuestions])
 
   // Render start mode (normal or with notes)
   return (
