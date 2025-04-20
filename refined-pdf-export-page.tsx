@@ -78,50 +78,24 @@ export default function RefinedPDFExportPage({
       title: "Ice‑breaker",
     },
     {
-      question: "What ARR are you aiming to hit by Demo Day?",
-      emoji: "🤩🌌",
-      title: "Demo day dream goal",
+      question: "What ARR are you aiming to hit by Demo Day, and how critical is reaching that target?",
+      emoji: "🎯",
+      title: "Demo Day dream Goal & Urgency",
     },
     {
-      question: "How many first‑calls or demos do you (and the team) run per week right now?",
+      question: "Give me the quick snapshot: weekly call volume, average deal size, and current close rate?",
       emoji: "📸",
-      title: "Pipeline snapshot 1/2",
+      title: "Pipeline & Conversion",
     },
     {
-      question: "What's the average deal size on those calls?",
-      emoji: "📸",
-      title: "Pipeline snapshot 2/2",
+      question: "Roughly how much qualified revenue do you think slips through each month?",
+      emoji: "💸",
+      title: "Revenue Leakage",
     },
     {
-      question: "Out of those calls, what percentage convert to paying customers?",
-      emoji: "🔄",
-      title: "Current conversion",
-    },
-    {
-      question: "In the last 30 days, how many qualified deals slipped through?",
-      emoji: "😈",
-      title: "Revenue leakage 1/2",
-    },
-    {
-      question: "Ballpark, what's the monthly revenue you believe is left on the table?",
-      emoji: "😈",
-      title: "Revenue leakage 2/2",
-    },
-    {
-      question:
-        "If you stay at the current close rate, what does that mean for your demo day goal? team morale? future fundraising?",
-      emoji: "❗️",
-      title: "Impact & Urgency",
-    },
-    {
-      question: "What tools or coaching methods are you using today to improve your conversion rates?",
-      emoji: "✅",
-      title: "Existing Solutions? 1/2",
-    },
-    {
-      question: "Where do they fall short?",
-      emoji: "✅",
-      title: "Existing Solutions? 2/2",
+      question: "What have you tried so far to improve conversions, and where does it still fall short?",
+      emoji: "🛠️✅",
+      title: "Current Efforts & Gaps",
     },
     {
       question: "What timeline are you working with to solve this before Demo Day?",
@@ -130,9 +104,14 @@ export default function RefinedPDFExportPage({
     },
     {
       question:
-        "Sounds like closing the extra $XXX K/month is mission‑critical and time‑boxed to Demo Day. Do you want to see how Nomi delivers realtime coaching that moves those numbers?",
+        "Sounds like closing the extra $200 K/month is mission‑critical. Want to see how Nomi's real‑time coaching moves those numbers?",
       emoji: "📟",
       title: "Transition to Demo",
+    },
+    {
+      question: "Is there anything else I should know before we wrap up?",
+      emoji: "💬",
+      title: "Closing",
     },
   ]
 
