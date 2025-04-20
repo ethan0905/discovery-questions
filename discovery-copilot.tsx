@@ -55,7 +55,7 @@ export default function DiscoveryCopilot() {
   const nextStepOrange = "#FF7A00" // Softer orange
 
   // State for current mode
-  const [mode, setMode] = useState<Mode>("start")
+  const [mode, setMode] = useState<Mode>("start-notes")
 
   // State for questions data
   const [questionData, setQuestionData] = useState(defaultQuestionData)
@@ -299,54 +299,93 @@ export default function DiscoveryCopilot() {
   }
 
   // Update the generateRecap function to include the custom title
+  const navigateToPdfExport = () => {
+    // Create a flash effect to indicate the action
+    const flashElement = document.createElement("div")
+    flashElement.style.position = "fixed"
+    flashElement.style.top = "0"
+    flashElement.style.left = "0"
+    flashElement.style.width = "100%"
+    flashElement.style.height = "100%"
+    flashElement.style.backgroundColor = "white"
+    flashElement.style.opacity = "0.7"
+    flashElement.style.zIndex = "9999"
+    flashElement.style.pointerEvents = "none"
+    flashElement.style.transition = "opacity 0.5s ease-out"
+
+    document.body.appendChild(flashElement)
+
+    // Flash effect
+    setTimeout(() => {
+      flashElement.style.opacity = "0"
+      setTimeout(() => {
+        document.body.removeChild(flashElement)
+      }, 500)
+    }, 100)
+
+    // Format call time for URL
+    const formattedCallTime = formatTime(callTime)
+
+    // Encode notes as a URL parameter
+    const encodedNotes = encodeURIComponent(JSON.stringify(notes))
+
+    // Open the PDF export page in a new tab/window with notes data and call duration
+    window.open(
+      `/pdf-export?title=${encodeURIComponent(customTitle)}&notes=${encodedNotes}&duration=${formattedCallTime}`,
+      "_blank",
+    )
+  }
+
   const generateRecap = () => {
-    const printRecap = () => {
-      const content = document.createElement("div")
-      content.innerHTML = `
-        <html>
-          <head>
-            <title>${customTitle} Summary</title>
-            <style>
-              body { font-family: Helvetica, Arial, sans-serif; padding: 20px; }
-              h1 { color: #10A37F; }
-              ul { padding-left: 20px; }
-              li { margin-bottom: 10px; }
-              .note { color: #6E6E80; font-style: italic; }
-            </style>
-          </head>
-          <body>
-            <h1>${customTitle} Summary</h1>
-            <p>Call duration: ${formatTime(callTime)}</p>
-            <ul>
-              ${questionData
-                .map(
-                  (q, i) => `
-                <li>
-                  <strong>${i + 1}. ${q.question}</strong>
-                  ${notes[i] ? `<div class="note">Notes: ${notes[i]}</div>` : ""}
-                </li>
-              `,
-                )
-                .join("")}
-            </ul>
-          </body>
-        </html>
-      `
+    const takeScreenshotOld = () => {
+      // Create a flash effect to indicate screenshot is being taken
+      const flashElement = document.createElement("div")
+      flashElement.style.position = "fixed"
+      flashElement.style.top = "0"
+      flashElement.style.left = "0"
+      flashElement.style.width = "100%"
+      flashElement.style.height = "100%"
+      flashElement.style.backgroundColor = "white"
+      flashElement.style.opacity = "0.7"
+      flashElement.style.zIndex = "9999"
+      flashElement.style.pointerEvents = "none"
+      flashElement.style.transition = "opacity 0.5s ease-out"
 
-      const printWindow = window.open("", "_blank")
-      if (printWindow) {
-        printWindow.document.write(content.innerHTML)
-        printWindow.document.close()
-        printWindow.focus()
+      document.body.appendChild(flashElement)
 
-        // Add a slight delay to ensure content is loaded
+      // Flash effect
+      setTimeout(() => {
+        flashElement.style.opacity = "0"
         setTimeout(() => {
-          printWindow.print()
-          // Some browsers will close the window after printing, some won't
-          // We'll add a message to guide the user
-          printWindow.document.body.innerHTML +=
-            '<p style="text-align: center; margin-top: 20px; color: #6E6E80;">You can close this window after saving or printing.</p>'
-        }, 300)
+          document.body.removeChild(flashElement)
+        }, 500)
+      }, 100)
+
+      // Show a message to the user with screenshot instructions
+      const message = `
+    Screenshot taken! 
+    
+    On Windows: The screenshot was copied to your clipboard. You can paste it into any application.
+    On Mac: The screenshot was saved to your desktop.
+    On Mobile: The screenshot was saved to your photos.
+    
+    If automatic screenshot didn't work, please use your device's screenshot function:
+    - Windows: Windows+Shift+S or PrtScn
+    - Mac: Command+Shift+4
+    - iPhone: Power+Volume Up
+    - Android: Power+Volume Down
+  `
+
+      // Try to use the browser's clipboard API if available
+      if (navigator.clipboard && window.ClipboardItem) {
+        try {
+          // This is a fallback message since we can't actually take a screenshot programmatically
+          alert("Please use your device's screenshot function to capture this screen.")
+        } catch (err) {
+          alert(message)
+        }
+      } else {
+        alert(message)
       }
     }
 
@@ -363,7 +402,7 @@ export default function DiscoveryCopilot() {
           ))}
         </ul>
 
-        {/* Export button instead of screenshot prompt */}
+        {/* Screenshot button instead of export button */}
         <div className="mt-6 pt-4 border-t border-[#ECECF1] flex items-center justify-between">
           <div className="flex items-center gap-2 text-[#6E6E80]">
             <svg
@@ -387,7 +426,7 @@ export default function DiscoveryCopilot() {
             </p>
           </div>
           <button
-            onClick={printRecap}
+            onClick={navigateToPdfExport}
             className="flex items-center gap-2 px-3 py-2 text-sm text-white bg-[#10A37F] hover:bg-[#0D8C6D] rounded-md transition-colors"
           >
             <svg
@@ -401,11 +440,13 @@ export default function DiscoveryCopilot() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
             </svg>
-            Export Summary
+            Export PDF
           </button>
         </div>
       </div>
