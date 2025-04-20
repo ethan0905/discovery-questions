@@ -77,7 +77,7 @@ export default function DiscoveryCopilot() {
   const [focusTimeoutId, setFocusTimeoutId] = useState<NodeJS.Timeout | null>(null)
 
   // Add a new state variable for the title near the other state variables
-  const [customTitle, setCustomTitle] = useState("Discovery Copilot")
+  const [customTitle, setCustomTitle] = useState("New discovery - Edit")
   const [isEditingTitle, setIsEditingTitle] = useState(false)
 
   // Call timer
